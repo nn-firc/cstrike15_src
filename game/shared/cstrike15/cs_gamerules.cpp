@@ -17299,22 +17299,6 @@ const wchar_t* CCSGameRules::GetFriendlyMapName( const char* szShortName )
 	char szPath[MAX_PATH];
 	V_strcpy_safe( szPath, szShortName );
 	V_FixSlashes( szPath, '/' ); // internal path strings use forward slashes, make sure we compare like that.
-	if ( V_strstr( szPath, "workshop/" ) )
-	{
-		PublishedFileId_t ullId = GetMapIDFromMapPath( szPath );
-		const PublishedFileInfo_t *pInfo = WorkshopManager().GetPublishedFileInfoByID( ullId );
-		static wchar_t wszMapName[128];
-		if ( pInfo )
-		{
-			g_pVGuiLocalize->ConvertANSIToUnicode(pInfo->m_rgchTitle, wszMapName, sizeof(wszMapName));
-			return wszMapName;
-		}
-		else
-		{
-			g_pVGuiLocalize->ConvertANSIToUnicode( V_GetFileName( szShortName ), wszMapName, sizeof(wszMapName));
-			return wszMapName;
-		}
-	}
 
     static wchar_t wszMapName[128];
     g_pVGuiLocalize->ConvertANSIToUnicode(szShortName, wszMapName, sizeof(wszMapName));

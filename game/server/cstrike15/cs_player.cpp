@@ -43,6 +43,7 @@
 #include "bot.h"
 #include "studio.h"
 #include <coordsize.h>
+#include <econ/econ_entity_creation.h>
 #include "predicted_viewmodel.h"
 #include "props_shared.h"
 #include "tier0/icommandline.h"
@@ -7230,7 +7231,47 @@ bool CCSPlayer::CSWeaponDrop( CBaseCombatWeapon *pWeapon, Vector targetPos, bool
 
 void CCSPlayer::TransferInventory( CCSPlayer* pTargetPlayer )
 {
-    // as part of transferring inventory, remove what WE have
+	// PiMoN: reverse-engineered from release binaries
+	pTargetPlayer->RemoveAllItems( true );
+
+	for ( int i = 0; i < MAX_WEAPONS; i++ )
+	{
+		CBaseCombatWeapon* pWeapon = dynamic_cast<CBaseCombatWeapon*>(GetWeapon( i ));
+		if ( pWeapon && ((pWeapon->GetWpnData().iFlags & ITEM_FLAG_EXHAUSTIBLE) == 0 || pWeapon->HasAmmo()) )
+		{
+			// PiMoN: was CEconEntity, changed to CWeaponCSBase for a couple of fixes below
+			CWeaponCSBase* pNewWeapon = dynamic_cast<CWeaponCSBase*>(pTargetPlayer->GiveNamedItem( pWeapon->GetName(), 0, pWeapon->GetEconItemView() ));
+			if ( pNewWeapon )
+			{
+				uint64 verylong = pWeapon->GetOriginalOwnerXuid();
+				pNewWeapon->SetOriginalOwnerXuid( (uint32)verylong, (uint32)(verylong >> 32) );
+
+				// PiMoN: everything below is not part of Valve's code
+				pNewWeapon->SetReserveAmmoCount( AMMO_POSITION_PRIMARY, pWeapon->GetReserveAmmoCount( AMMO_POSITION_PRIMARY ), true );
+				pNewWeapon->SetReserveAmmoCount( AMMO_POSITION_SECONDARY, pWeapon->GetReserveAmmoCount( AMMO_POSITION_SECONDARY ), true );
+				pNewWeapon->m_iClip1 = pWeapon->m_iClip1;
+				pNewWeapon->m_iClip2 = pWeapon->m_iClip2;
+				// PiMoN: this also should set silencer, but I don't think that bots ever change it
+			}
+		}
+	}
+
+	if ( HasDefuser() )
+		pTargetPlayer->GiveDefuser();
+	pTargetPlayer->SetArmorValue( ArmorValue() );
+	pTargetPlayer->m_bHasHelmet = m_bHasHelmet;
+	pTargetPlayer->m_bHasHeavyArmor = m_bHasHeavyArmor;
+	pTargetPlayer->m_bHasNightVision = m_bHasNightVision;
+	pTargetPlayer->m_bNightVisionOn = m_bNightVisionOn;
+	pTargetPlayer->m_iAccount = m_iAccount;
+	pTargetPlayer->m_iAccountMoneyEarnedForNextRound = m_iAccountMoneyEarnedForNextRound;
+
+	if ( dev_reportmoneychanges.GetBool() )
+	{
+		Msg( "-- %s\t\t\t(total: %d)\tTransferInventory to %s\n", GetPlayerName(), pTargetPlayer->m_iAccount, pTargetPlayer->GetPlayerName() );
+	}
+
+	// as part of transferring inventory, remove what WE have
 	SetArmorValue( 0 );
 	m_bHasHelmet = false;
 	m_bHasHeavyArmor = false;
@@ -9349,7 +9390,7 @@ bool CCSPlayer::ClientCommand( const CCommand &args )
 		*/
 		return true;
 	}
-	else if ( FStrEq( pcmd, "spec_next" ) || FStrEq( pcmd, "spec_prev" ) || FStrEq( pcmd, "spec_grenade" ) || FStrEq( pcmd, "spec_scoreboard" ) )
+	else if ( FStrEq( pcmd, "spec_scoreboard" ) )
 	{
 		if ( GetTeamNumber() == TEAM_SPECTATOR )
 		{
@@ -10613,12 +10654,11 @@ void CCSPlayer::State_Enter_WELCOME()
 	// Show info panel (if it's not a simple demo map ).
 	if ( !CSGameRules()->IsLogoMap() )
 	{
-		const bool enableMOTD = true;
 		if ( CommandLine()->FindParm( "-makereslists" ) ) // don't show the MOTD when making reslists
 		{
 			engine->ClientCommand( edict(), "jointeam 3\n" );
 		}
-		else if ( enableMOTD )
+		else
 		{
 			KeyValues *data = new KeyValues("data" );
 			data->SetString( "title", title );		// info panel title
@@ -12381,6 +12421,76 @@ void CCSPlayer::StockPlayerAmmo( CBaseCombatWeapon *pNewWeapon )
 void CCSPlayer::FindMatchingWeaponsForTeamLoadout( const char *pchName, int nTeam, bool bMustBeTeamSpecific, CUtlVector< CEconItemView* > &matchingWeapons )
 {
 	/** Removed for partner depot **/
+	//lwss - rebuilt this function from reversing retail bins
+    const char *weaponName = pchName;
+    CEconItemDefinition *itemDef = GEconItemSchema().GetItemDefinitionByName( pchName );
+    if( itemDef )
+    {
+        const char *slotName = itemDef->GetRawDefinition()->GetString( "item_slot" );
+        if( slotName && slotName[0] && !V_stricmp( slotName, "melee" ) )
+        {
+            if( nTeam == TEAM_TERRORIST )
+            {
+                weaponName = "weapon_knife_t";
+            }
+            else
+            {
+                weaponName = "weapon_knife";
+            }
+        }
+    }
+
+    bool isGunGameDM = true;
+    if( CSGameRules() && CSGameRules()->IsPlayingGunGame() ){
+        isGunGameDM = CSGameRules()->IsPlayingGunGameDeathmatch();
+    }
+
+    CEconItemView *baseItemForSlot = NULL;
+    int slot = LOADOUT_POSITION_MELEE;
+
+    while( true )
+    {
+        baseItemForSlot = CSInventoryManager()->GetBaseItemForTeam( nTeam, slot );
+        const GameItemDefinition_t *baseItemDef = baseItemForSlot->GetItemDefinition();
+        const char *defName = baseItemDef->GetDefinitionName();
+        if( !V_strcmp(baseItemDef->GetItemBaseName(), weaponName) )
+            break;
+
+        if( ++slot >= 3 )
+        {
+            // go through the slots in loadout_positions_t
+            for( int slotItr = LOADOUT_POSITION_SECONDARY0; slotItr <= LOADOUT_POSITION_HEAVY5; slotItr++ )
+            {
+                CEconItemView *slotItrItem = m_Inventory.GetItemInLoadout( nTeam, slotItr );
+                if( !slotItrItem || !slotItrItem->IsValid() )
+                    continue;
+                if( V_strcmp( slotItrItem->GetItemDefinition()->GetItemBaseName(), weaponName ) )
+                    continue;
+
+                if( !bMustBeTeamSpecific ||
+                (slotItrItem->GetStaticData()->GetUsedByTeam() == nTeam || slotItrItem->GetStaticData()->GetUsedByTeam() == TEAM_UNASSIGNED ) )
+                {
+                    Msg("%s is valid weapon for \"%s\" in slot %d\n", defName, weaponName, slotItr );
+                    matchingWeapons.AddToTail( slotItrItem );
+                }
+            }
+            return;
+        }
+    }
+
+    CEconItemView *slotItem = m_Inventory.GetItemInLoadout( nTeam, slot );
+    if( slotItem && slotItem->IsValid() && slotItem != baseItemForSlot )
+    {
+        if( (isGunGameDM | slot < 2) || !V_strcmp( slotItem->GetItemDefinition()->GetDefinitionName(), weaponName ) )
+        {
+            if( !bMustBeTeamSpecific ||
+            (slotItem->GetStaticData()->GetUsedByTeam() == nTeam || slotItem->GetStaticData()->GetUsedByTeam() == TEAM_UNASSIGNED ) )
+            {
+                matchingWeapons.AddToTail( slotItem );
+            }
+        }
+    }
+    //lwss end
 }
 
 CBaseEntity	*CCSPlayer::GiveNamedItem( const char *pchName, int iSubType /*= 0*/, CEconItemView *pScriptItem /*= NULL*/, bool bForce /*= false*/ )
@@ -12410,7 +12520,7 @@ CBaseEntity	*CCSPlayer::GiveNamedItem( const char *pchName, int iSubType /*= 0*/
 			}
 		}
 	}
-#if !defined( NO_STEAM_GAMECOORDINATOR )
+//#if !defined( NO_STEAM_GAMECOORDINATOR )
 	if ( pScriptItem && pScriptItem->IsValid() )
 	{
 		// Generate a weapon directly from that item
@@ -12430,7 +12540,7 @@ CBaseEntity	*CCSPlayer::GiveNamedItem( const char *pchName, int iSubType /*= 0*/
 			pItem = ItemGeneration()->GenerateRandomItem( &criteria, GetAbsOrigin(), vec3_angle );
 		}
 	}
-#endif
+//#endif
 	if ( pItem == NULL )
 	{
 		// Trap for guns that 'exist' but never shipped.
@@ -12453,7 +12563,7 @@ CBaseEntity	*CCSPlayer::GiveNamedItem( const char *pchName, int iSubType /*= 0*/
 			Msg( "NULL Ent in GiveNamedItem!\n" );
 			return NULL;
 		}
-//		Msg( "%s is missing an item definition in the schema.\n", pchName );
+		Msg( "%s is missing an item definition in the schema.\n", pchName );
 	}
 
 	Vector pos = ( GetLocalOrigin() + Weapon_ShootPosition() ) * 0.5f;

@@ -631,7 +631,8 @@ void CWeaponCSBaseGun::BurstFireRemaining()
 		return;
 	}
 
-	uint16 nItemDefIndex = 0;
+	const CCSWeaponInfo& weaponInfo = GetCSWpnData();
+	uint16 nItemDefIndex = GetEconItemView()->GetItemIndex();
 
 	FX_FireBullets(
 		pPlayer->entindex(),
@@ -663,8 +664,6 @@ void CWeaponCSBaseGun::BurstFireRemaining()
 	{
 		m_fNextBurstShot = 0.0f;
 	}
-
-	const CCSWeaponInfo& weaponInfo = GetCSWpnData();
 
 	// update accuracy
 	m_fAccuracyPenalty += weaponInfo.GetInaccuracyFire( GetEconItemView(), m_weaponMode );
@@ -728,7 +727,7 @@ bool CWeaponCSBaseGun::CSBaseGunFire( float flCycleTime, CSWeaponMode weaponMode
 	// player "shoot" animation
 	pPlayer->SetAnimation( PLAYER_ATTACK1 );
 
-	uint16 nItemDefIndex = 0;
+	uint16 nItemDefIndex = GetEconItemView()->GetItemIndex();
 
 	FX_FireBullets(
 		pPlayer->entindex(),

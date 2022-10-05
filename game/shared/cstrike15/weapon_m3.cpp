@@ -114,7 +114,7 @@ void CWeaponM3::PrimaryAttack()
 	// player "shoot" animation
 	pPlayer->SetAnimation( PLAYER_ATTACK1 );
 
-	uint16 nItemDefIndex = 0;
+	uint16 nItemDefIndex = GetEconItemView()->GetItemIndex();
 
 	// Dispatch the FX right away with full accuracy.
 	float flCurAttack = CalculateNextAttackTime( flCycleTime );

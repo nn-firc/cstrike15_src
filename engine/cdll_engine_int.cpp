@@ -695,10 +695,6 @@ public:
 
 	virtual void AudioLanguageChanged();
 
-	virtual void StartLoadingScreenForCommand( const char* command );
-	
-	virtual void StartLoadingScreenForKeyValues( KeyValues* keyValues );
-
 	virtual bool SOSSetOpvarFloat( const char *pOpVarName, float flValue );
 	virtual bool SOSGetOpvarFloat( const char *pOpVarName, float &flValue );
 
@@ -2472,16 +2468,6 @@ void CEngineClient::AudioLanguageChanged()
 	S_PurgeSoundsDueToLanguageChange();
 }
 
-void CEngineClient::StartLoadingScreenForCommand( const char* command )
-{
-	EngineVGui()->StartLoadingScreenForCommand( command );
-}
-
-void CEngineClient::StartLoadingScreenForKeyValues( KeyValues* keyValues )
-{
-	EngineVGui()->StartLoadingScreenForKeyValues( keyValues );
-}
-
 #if defined(_PS3)
 void* CEngineClient::GetHostStateWorldBrush( void )
 {
@@ -3020,15 +3006,6 @@ int  ClientDLL_GetSpectatorTarget( ClientDLLObserverMode_t *pObserverMode )
 		*pObserverMode = CLIENT_DLL_OBSERVER_NONE;
 	}
 	return -1;
-}
-
-vgui::VPANEL ClientDLL_GetFullscreenClientDLLVPanel( void )
-{
-	if ( g_ClientDLL )
-	{
-		return g_ClientDLL->GetFullscreenClientDLLVPanel();
-	}
-	return false;
 }
 
 #if defined ( _PS3 )

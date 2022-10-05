@@ -35,13 +35,6 @@
 class BotProfile;
 
 //--------------------------------------------------------------------------------------------------------
-static char *CloneString( const char *str )
-{
-	char *cloneStr = new char [ strlen(str)+1 ];
-	strcpy( cloneStr, str );
-	return cloneStr;
-}
-
 extern bool AreBotsAllowed();
 
 

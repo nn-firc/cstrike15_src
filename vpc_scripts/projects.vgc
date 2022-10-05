@@ -427,6 +427,11 @@ $Project "gamestats_reader"
 	"utils/gamestats_reader/gamestats_reader.vpc" [$WINDOWS]
 }
 
+$Project "GameUI"
+{
+	"gameui\GameUI.vpc" [$WINDOWS||$X360||$POSIX]
+}
+
 $Project "game_shader_generic_advanced"
 {
 	"sdkshaders/advanced/game_shader_generic_advanced.vpc" [$WINDOWS]
@@ -1189,16 +1194,6 @@ $Project "runme"
 $Project "sampletool"
 {
 	"tools/sampletool/sampletool.vpc" [$WINDOWS]
-}
-
-$Project "scaleformui"
-{
-	"scaleformui/scaleformui.vpc" [$WINDOWS||$POSIX]
-}
-
-$Project "scaleformui_3"
-{
-	"scaleformui_3/scaleformui_3.vpc" [$WINDOWS||$LINUX]
 }
 
 $Project "scenefilecache"

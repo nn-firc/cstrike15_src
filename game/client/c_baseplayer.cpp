@@ -58,7 +58,11 @@
 #if defined( INCLUDE_SCALEFORM ) && defined( CSTRIKE_DLL )
 #include "HUD/sfweaponselection.h"
 #include "Scaleform/HUD/sfhudfreezepanel.h"
+#endif
+
+#if defined( CSTRIKE_DLL )
 #include "cs_weapon_parse.h"
+#include "c_cs_player.h"
 #endif
 
 #ifdef DEMOPOLISH_ENABLED
@@ -634,8 +638,6 @@ void C_BasePlayer::Spawn( void )
 
 	SetThink(NULL);
 
-	RANDOM_CEG_TEST_SECRET_LINE_PERIOD( 17, 0, 41, 0 );
-
 	SharedSpawn();
 
 	m_bWasFreezeFraming = false;
@@ -1146,7 +1148,7 @@ void C_BasePlayer::PostDataUpdate( DataUpdateType_t updateType )
 	}
 
 	BaseClass::PostDataUpdate( updateType );
-			 
+
 	// Only care about this for local player
 	if ( IsLocalPlayer( this ) )
 	{
@@ -1211,6 +1213,7 @@ void C_BasePlayer::PostDataUpdate( DataUpdateType_t updateType )
 			bHideFreezePanel = true;
 			m_bWasFreezePanelExtended = false;
 		}
+#if defined( INCLUDE_SCALEFORM )
 		else if ( IsAlive() )
 		{
 			SFHudFreezePanel *pPanel = GET_HUDELEMENT( SFHudFreezePanel );
@@ -1220,6 +1223,7 @@ void C_BasePlayer::PostDataUpdate( DataUpdateType_t updateType )
 				bHideFreezePanel = true;
 			}	
 		}
+#endif
 		
 		if ( bHideFreezePanel && !g_HltvReplaySystem.GetHltvReplayDelay() && !g_HltvReplaySystem.IsDelayedReplayRequestPending() )
 		{
@@ -1386,7 +1390,7 @@ void C_BasePlayer::OnDataChanged( DataUpdateType_t updateType )
 			render->SetAreaState( m_Local.m_chAreaBits, m_Local.m_chAreaPortalBits );
 		}
 
-#if !defined( INCLUDE_SCALEFORM ) || !defined( CSTRIKE_DLL )
+#if !defined( INCLUDE_SCALEFORM ) && !defined( CSTRIKE_DLL )
 		// Check for Ammo pickups.
 		int ammoTypes = GetAmmoDef()->NumAmmoTypes();
 		for ( int i = 0; i <= ammoTypes; i++ )

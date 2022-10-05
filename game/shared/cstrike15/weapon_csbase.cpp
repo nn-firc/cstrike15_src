@@ -46,7 +46,9 @@
 	#include "cs_custom_material_swap.h"
 	#include "cs_custom_weapon_visualsdata_processor.h"
 	//#include "glow_outline_effect.h"
+#if defined( INCLUDE_SCALEFORM )
 	#include "HUD/sfhudreticle.h"
+#endif
 
 	extern IVModelInfoClient* modelinfo;
 
@@ -66,6 +68,10 @@
 
 // NOTE: This has to be the last file included!
 #include "tier0/memdbgon.h"
+
+#ifndef VIEWPUNCH_COMPENSATE_MAGIC_SCALAR
+#define VIEWPUNCH_COMPENSATE_MAGIC_SCALAR 0.65
+#endif
 
 #if defined( CSTRIKE15 )
 
@@ -1651,15 +1657,9 @@ void CWeaponCSBase::RemoveUnownedWeaponThink()
 #endif
 
 ConVar mp_weapon_prev_owner_touch_time( "mp_weapon_prev_owner_touch_time", "1.5", FCVAR_CHEAT | FCVAR_REPLICATED );
-#if defined ( CLIENT_DLL )
-CEG_NOINLINE void CWeaponCSBase::Drop( const Vector &vecVelocity )
-#else
 void CWeaponCSBase::Drop( const Vector &vecVelocity )
-#endif
 {
 #ifdef CLIENT_DLL
-	CEG_PROTECT_VIRTUAL_FUNCTION( CWeaponCSBase_Drop );
-
 	BaseClass::Drop( vecVelocity );
 
 	CBaseHudWeaponSelection *pHudSelection = GetHudWeaponSelection();
@@ -3061,6 +3061,7 @@ void CWeaponCSBase::Spawn()
 {
 	m_nWeaponID = WeaponIdFromString( GetClassname() );
 
+	BaseClass::InitializeAttributes();
 	BaseClass::Spawn();
 
 	// Override the bloat that our base class sets as it's a little bit bigger than we want.
@@ -3833,6 +3834,37 @@ void CWeaponCSBase::OnLand( float fVelocity )
 void CWeaponCSBase::Recoil( CSWeaponMode weaponMode )
 {
 	/** Removed for partner depot **/
+    //lwss - rebuilt this function from reversing retail bins
+    float angle;
+    float magnitude;
+    int seed;
+    CCSPlayer *pPlayer = GetPlayerOwner();
+
+    if ( !pPlayer )
+        return;
+
+    //update: Special Thanks to PiMoNFeeD for noticing I missed an if-statement here with the vfunc IsFullAuto().
+    // The recoil was a bit wonky.
+    if( !IsFullAuto() )
+    {
+        seed = GetPredictionRandomSeed();
+    }
+    else
+    {
+        seed = (int) m_flRecoilIndex;
+    }
+
+    if( weapon_legacy_recoiltable.GetBool() )
+    {
+        GetCSWpnData().GetRecoilOffsets( weaponMode, seed, angle, magnitude );
+    }
+    else
+    {
+        g_WeaponRecoilData.GetRecoilOffsets( this, weaponMode, seed, angle, magnitude );
+    }
+
+    pPlayer->KickBack( angle, magnitude );
+    //lwss end
 }
 
 #ifdef CLIENT_DLL

@@ -25,7 +25,6 @@
 #include "cmatnullrendercontext.h"
 #include "datacache/iresourceaccesscontrol.h"
 #include "filesystem/IQueuedLoader.h"
-#include "filesystem/IXboxInstaller.h"
 #include "cdll_int.h"
 #include "vjobs_interface.h"
 #include "ps3/ps3_sn.h"
@@ -4406,7 +4405,9 @@ void CMaterialSystem::EndFrame( void )
 				Assert( m_QueuedRenderContexts[i].IsInitialized() );
 				m_QueuedRenderContexts[i].Shutdown();
 			}
+#if defined( INCLUDE_SCALEFORM )
 			g_pScaleformUI->SetSingleThreadedMode(true);
+#endif
 			break;
 
 		case MATERIAL_QUEUED_SINGLE_THREADED:
@@ -4424,7 +4425,9 @@ void CMaterialSystem::EndFrame( void )
 			if ( m_ThreadMode == MATERIAL_QUEUED_SINGLE_THREADED )
 			{
 				g_pShaderAPI->SetDisallowAccess( true );
+#if defined( INCLUDE_SCALEFORM )
 				g_pScaleformUI->SetSingleThreadedMode(true);
+#endif
 			}
 			else
 			{
@@ -4434,7 +4437,9 @@ void CMaterialSystem::EndFrame( void )
 				g_pShaderAPI->ReleaseThreadOwnership();
 				m_QueuedRenderContexts[m_iCurQueuedContext].GetCallQueueInternal()->QueueCall( g_pShaderAPI, &IShaderAPI::AcquireThreadOwnership );
 #endif
+#if defined( INCLUDE_SCALEFORM )
 				g_pScaleformUI->SetSingleThreadedMode(false);
+#endif
 			}
 			break;
 		}

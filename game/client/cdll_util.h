@@ -182,8 +182,6 @@ bool UTIL_HasLoadedAnyMap();
 
 wchar_t *UTIL_GetLocalizedKeyString( const char *command, const char *fmt, const wchar_t *arg1 = NULL, const wchar_t *arg2 = NULL, const wchar_t *arg3 = NULL );
 
-void UTIL_GetClientStatusText( char *buffer, int bufsize );
-
 class CGameTrace;
 typedef CGameTrace trace_t;
 void		UTIL_ClearTrace			( trace_t &trace );

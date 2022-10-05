@@ -16,7 +16,6 @@
 #include "achievements_cs.h"
 #include "vgui/ILocalize.h"
 #include "c_team.h"
-#include "engineinterface.h"
 #include "matchmaking/mm_helpers.h"
 #include "cstrikeloadout.h"
 #include "gametypes.h"
@@ -202,7 +201,7 @@ static inline int GetNumPlayers( C_Team *pTeam )
 //-----------------------------------------------------------------------------
 // Purpose: called when the stats have changed in-game
 //-----------------------------------------------------------------------------
-CEG_NOINLINE void CCSClientGameStats::FireGameEvent( IGameEvent *event )
+void CCSClientGameStats::FireGameEvent( IGameEvent *event )
 {
 	const char *pEventName = event->GetName();
 	if ( 0 == Q_strcmp( pEventName, "player_stats_updated" ) )
@@ -988,7 +987,7 @@ void CCSClientGameStats::ResetLeaderboardStats( void )
 #endif // _X360
 }
 
-CEG_NOINLINE void CCSClientGameStats::WriteLeaderboardStats( void )
+void CCSClientGameStats::WriteLeaderboardStats( void )
 {
 	return;	// disabling client-writing leaderboards for now
 
@@ -1137,8 +1136,6 @@ CEG_NOINLINE void CCSClientGameStats::WriteLeaderboardStats( void )
 		// Construct keyvalues that set the values we want to write to the leaderboard.
 		KeyValues *pLeaderboardInfo = new KeyValues( "leaderboardinfo" );
 		KeyValues::AutoDelete autoDelete( pLeaderboardInfo );
-
-		CEG_PROTECT_MEMBER_FUNCTION( CCSClientGameStats_WriteLeaderboardStats );
 
 		//
 		// Write out: Contribution Score

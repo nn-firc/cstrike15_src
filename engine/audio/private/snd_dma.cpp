@@ -40,7 +40,6 @@
 #include "edict.h"
 #include "../../pure_server.h"
 #include "filesystem/IQueuedLoader.h"
-#include "filesystem/IXboxInstaller.h"
 #include "voice.h"
 #include "snd_dma.h"
 #include "snd_mixgroups.h"

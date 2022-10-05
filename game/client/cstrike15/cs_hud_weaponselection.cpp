@@ -7,9 +7,12 @@
 #include "cbase.h"
 #include "cs_hud_weaponselection.h"
 #include "iclientmode.h"
+#if defined( INCLUDE_SCALEFORM )
 #include "HUD/sfweaponselection.h"
+#endif
 #include "iinput.h"
 #include "cs_gamerules.h"
+#include "c_cs_player.h"
 
 #include <keyvalues.h>
 #include <vgui/IScheme.h>
@@ -44,6 +47,7 @@ CHudWeaponSelection::CHudWeaponSelection( const char *pElementName ) : CBaseHudW
 //-----------------------------------------------------------------------------
 void CHudWeaponSelection::OnWeaponPickup( C_BaseCombatWeapon *pWeapon )
 {
+#if defined( INCLUDE_SCALEFORM )
 	CWeaponCSBase* pCSWeapon = dynamic_cast<CWeaponCSBase*>( pWeapon );
 	C_CSPlayer *pPlayer = GetHudPlayer();
 
@@ -59,6 +63,7 @@ void CHudWeaponSelection::OnWeaponPickup( C_BaseCombatWeapon *pWeapon )
 			}
 		}
 	}
+#endif
 }
 
 //-----------------------------------------------------------------------------
@@ -66,6 +71,7 @@ void CHudWeaponSelection::OnWeaponPickup( C_BaseCombatWeapon *pWeapon )
 //-----------------------------------------------------------------------------
 void CHudWeaponSelection::OnWeaponDrop( C_BaseCombatWeapon *pWeapon )
 {
+#if defined( INCLUDE_SCALEFORM )
 	CWeaponCSBase* pCSWeapon = dynamic_cast<CWeaponCSBase*>( pWeapon );
 	C_CSPlayer *pPlayer = GetHudPlayer();
 
@@ -80,6 +86,7 @@ void CHudWeaponSelection::OnWeaponDrop( C_BaseCombatWeapon *pWeapon )
 			}			
 		}
 	}
+#endif
 }
 
 //-----------------------------------------------------------------------------
@@ -87,6 +94,7 @@ void CHudWeaponSelection::OnWeaponDrop( C_BaseCombatWeapon *pWeapon )
 //-----------------------------------------------------------------------------
 void CHudWeaponSelection::OnWeaponSwitch( C_BaseCombatWeapon *pWeapon )
 {
+#if defined( INCLUDE_SCALEFORM )
 	CWeaponCSBase* pCSWeapon = dynamic_cast<CWeaponCSBase*>( pWeapon );
 	C_CSPlayer *pPlayer = C_CSPlayer::GetLocalCSPlayer();
 
@@ -101,6 +109,7 @@ void CHudWeaponSelection::OnWeaponSwitch( C_BaseCombatWeapon *pWeapon )
 			}
 		}
 	}
+#endif
 }
 
 //-----------------------------------------------------------------------------

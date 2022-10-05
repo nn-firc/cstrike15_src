@@ -42,12 +42,16 @@
 #include "c_cs_hostage.h"
 #include "prediction.h"
 
+#if defined( INCLUDE_SCALEFORM )
 #include "HUD/sfweaponselection.h"
 #include "HUD/sfhudreticle.h"
 #include "HUD/sfweaponselection.h"
+#include "Scaleform/HUD/sfhudinfopanel.h"
+#else
+#include "weapon_selection.h"
+#endif
 #include "ragdoll_shared.h"
 #include "collisionutils.h"
-#include "engineinterface.h"
 #include "econ_gcmessages.h"
 #include "cstrike15_item_system.h"
 #include "hltvcamera.h"
@@ -73,8 +77,6 @@
 #include "gametypes.h"
 #include "GameStats.h"
 #include "c_cs_team.h"
-
-#include "Scaleform/HUD/sfhudinfopanel.h"
 
 #include <engine/IEngineSound.h>
 
@@ -2454,10 +2456,13 @@ void C_CSPlayer::FireGameEvent( IGameEvent *event )
 
 				g_pVGuiLocalize->ConstructString( szBuf, sizeof( szBuf ), g_pVGuiLocalize->Find( szAlertToken ), 1, g_pVGuiLocalize->Find( Helper_GetLocalPlayerAssassinationQuestLocToken( pQuest ) ) );
 
+#if defined( INCLUDE_SCALEFORM )
 				( ( SFHudInfoPanel * ) pElement )->SetPriorityHintText( szBuf );
+#else
+				GetCenterPrint()->Print( szBuf );
+#endif
 			}
 		}
-		
 	}
 	else if ( Q_strcmp( name, "cs_pre_restart" ) == 0 )
 	{
@@ -2601,7 +2606,6 @@ void C_CSPlayer::FireGameEvent( IGameEvent *event )
 					C_RecipientFilter filter;
 					filter.AddRecipient( this );
 					C_BaseEntity::EmitSound( filter, entindex(), "Music.GG_Revenge" );
-					STEAMWORKS_TESTSECRETALWAYS_AMORTIZE( 7 );
 				}
 				if ( event->GetInt( "bonus" ) != 0 )
 				{
@@ -2637,8 +2641,6 @@ void C_CSPlayer::FireGameEvent( IGameEvent *event )
 			// Play an audio cue corresponding to getting the final weapon
 			//EmitSound( "GunGameWeapon.AchievedFinalWeapon" );
 			GetCenterPrint()->Print( "#SFUI_Notice_Knife_Level_You" );
-
-			STEAMWORKS_TESTSECRETALWAYS_AMORTIZE( 13 );
 		}
 		else
 		{
@@ -2663,8 +2665,6 @@ void C_CSPlayer::FireGameEvent( IGameEvent *event )
 			{
 				// Play the bonus grenade voiceover after next round start
 				m_StartOfRoundSoundEvents.AddSound( this, "GunGameWeapon.AchievedBonusGrenade", 2.0f );
-
-				STEAMWORKS_TESTSECRETALWAYS_AMORTIZE( 23 );
 			}
 		}
 	}
@@ -2674,7 +2674,6 @@ void C_CSPlayer::FireGameEvent( IGameEvent *event )
 		if ( PlayerUserID == EventUserID )
 		{
 			// Play the voiceover for receiving the c4
-			STEAMWORKS_TESTSECRETALWAYS_AMORTIZE( 13 );
 		}
 	}
 	else if ( Q_strcmp( "item_pickup", name ) == 0 )
@@ -2686,8 +2685,6 @@ void C_CSPlayer::FireGameEvent( IGameEvent *event )
 			// if we aren't playing the sound on the server, play a "silent" version on the client
 			if ( event->GetBool( "silent" ) )
 				EmitSound( "Player.PickupWeaponSilent" );
-
-			STEAMWORKS_TESTSECRET_AMORTIZE( 67 );
 		}
 	}
 	else if ( Q_strcmp( "ammo_pickup", name ) == 0 )
@@ -2716,9 +2713,7 @@ void C_CSPlayer::FireGameEvent( IGameEvent *event )
 		if ( CSGameRules()->IsPlayingGunGameProgressive() || CSGameRules()->IsPlayingGunGameDeathmatch() )
 		{	
 			if ( GetUserID() == event->GetInt("playerid" ) )
-			{		
-				STEAMWORKS_TESTSECRETALWAYS_AMORTIZE( 11 );
-
+			{
 				/*
 				if ( !m_isCurrentGunGameLeader )
 				{
@@ -2828,7 +2823,11 @@ void C_CSPlayer::FireGameEvent( IGameEvent *event )
 						pCSRes->GetDecoratedPlayerName( entindex(), wszName, sizeof( wszName ), k_EDecoratedPlayerNameFlag_Simple );
 						g_pVGuiLocalize->ConstructString( szBuf, sizeof( szBuf ), g_pVGuiLocalize->Find( "#quest_assassination_no_longer_target" ), 1, wszName );
 
+#if defined( INCLUDE_SCALEFORM )
 						( ( SFHudInfoPanel * )pElement )->SetPriorityHintText( szBuf );
+#else
+						GetCenterPrint()->Print( szBuf );
+#endif
 					}
 				}
 			}
@@ -2935,7 +2934,11 @@ void C_CSPlayer::FireGameEvent( IGameEvent *event )
 			{
 				wchar_t szBuf[ 512 ];
 				g_pVGuiLocalize->ConstructString( szBuf, sizeof( szBuf ), g_pVGuiLocalize->Find( "#quest_assassination_target_killed" ), 1, wszName );
+#if defined( INCLUDE_SCALEFORM )
 				( ( SFHudInfoPanel * ) pElement )->SetPriorityHintText( szBuf );
+#else
+				GetCenterPrint()->Print( szBuf );
+#endif
 			}
 		}
 	}
@@ -4763,7 +4766,11 @@ void C_CSPlayer::ClientThink()
 				if ( CSGameRules()->IsPlayingCoopGuardian() )
 				{
 					EmitSound( "UI.Guardian.TooFarWarning" );
+#if defined( INCLUDE_SCALEFORM )
 					( ( SFHudInfoPanel * )pElement )->SetPriorityHintText( g_pVGuiLocalize->Find( "#SFUI_Notice_GuardianModeTooFarFromBomb" ) );
+#else
+					GetCenterPrint()->Print( g_pVGuiLocalize->Find( "#SFUI_Notice_GuardianModeTooFarFromBomb" ) );
+#endif
 				}
 			}
 
@@ -4955,11 +4962,15 @@ void C_CSPlayer::ClientThink()
 			//if ( flTimeLeft < 1.0f && m_bHasMovedSinceSpawn )
 			g_pVGuiLocalize->ConstructString( wszLocalized, sizeof( wszLocalized ), g_pVGuiLocalize->Find( "#SFUI_Notice_Guardian_BuyMenuAvailable" ), 3, wzBuyBind/*, wzTime, wzAutoBuyBind*/ );
 
+#if defined( INCLUDE_SCALEFORM )
 			CHudElement *pElement = GetHud().FindElement( "SFHudInfoPanel" );
 			if ( pElement )
 			{
 				( ( SFHudInfoPanel * )pElement )->SetPriorityHintText( wszLocalized );
 			}
+#else
+			GetCenterPrint()->Print( wszLocalized );
+#endif
 
 			//GetCenterPrint()->Print( wszLocalized );
 			//UTIL_HudHintText( GetOwner(), hint.Access() );
@@ -5007,11 +5018,15 @@ void C_CSPlayer::ClientThink()
 					g_pVGuiLocalize->ConstructString( wszLocalized, sizeof( wszLocalized ), g_pVGuiLocalize->Find( "#SFUI_Notice_DM_BuyMenu_RandomOFF" ), 3, wzBuyBind, wzTime, wzAutoBuyBind );
 			}
 
+#if defined( INCLUDE_SCALEFORM )
 			CHudElement *pElement = GetHud().FindElement( "SFHudInfoPanel" );
 			if ( pElement )														
 			{																	
 				((SFHudInfoPanel *)pElement)->SetPriorityHintText( wszLocalized );				
 			}
+#else
+			GetCenterPrint()->Print( wszLocalized );
+#endif
 
 			//GetCenterPrint()->Print( wszLocalized );
 			//UTIL_HudHintText( GetOwner(), hint.Access() );
@@ -5027,11 +5042,15 @@ void C_CSPlayer::ClientThink()
 		//g_pVGuiLocalize->ConstructString( wszLocalized, sizeof( wszLocalized ), g_pVGuiLocalize->Find( "#SFUI_Notice_DM_BuyMenu_RandomOFF" ), 3, wzBuyBind, wzTime, wzAutoBuyBind );
 		g_pVGuiLocalize->ConstructString( wszLocalized, sizeof( wszLocalized ), g_pVGuiLocalize->Find( "#Cstrike_TitlesTXT_CarryingHostage" ), 0 );
 
+#if defined( INCLUDE_SCALEFORM )
 		CHudElement *pElement = GetHud().FindElement( "SFHudInfoPanel" );
 		if ( pElement )														
 		{																	
 			((SFHudInfoPanel *)pElement)->SetPriorityHintText( wszLocalized );				
 		}
+#else
+		GetCenterPrint()->Print( wszLocalized );
+#endif
 	}
 	else if ( !IsAlive() && mp_use_respawn_waves.GetBool() && CSGameRules() && IsAbleToInstantRespawn() && this == GetLocalPlayer() && GetObserverMode() > OBS_MODE_FREEZECAM )
 	{
@@ -5040,11 +5059,15 @@ void C_CSPlayer::ClientThink()
 			float flTimeLeft = CSGameRules()->GetNextRespawnWave( GetTeamNumber(), NULL ) - gpGlobals->curtime;
 			if ( flTimeLeft > CSGameRules()->GetRespawnWaveMaxLength( GetTeamNumber() ) )
 			{
+#if defined( INCLUDE_SCALEFORM )
 				CHudElement *pElement = GetHud().FindElement( "SFHudInfoPanel" );
 				if ( pElement )
 				{
 					( ( SFHudInfoPanel * )pElement )->SetPriorityHintText( g_pVGuiLocalize->Find( "#SFUI_Notice_WaitToRespawn" ) );
 				}
+#else
+				GetCenterPrint()->Print( g_pVGuiLocalize->Find( "#SFUI_Notice_WaitToRespawn" ) );
+#endif
 			}
 			else if ( flTimeLeft > 1.0f )
 			{
@@ -5057,21 +5080,29 @@ void C_CSPlayer::ClientThink()
 				wchar_t wszLocalized[256];
 				g_pVGuiLocalize->ConstructString( wszLocalized, sizeof( wszLocalized ), g_pVGuiLocalize->Find( "#SFUI_Notice_WaveRespawnIn" ), 1, wzTime );
 
+#if defined( INCLUDE_SCALEFORM )
 				CHudElement *pElement = GetHud().FindElement( "SFHudInfoPanel" );
 				if ( pElement )														
 				{																	
 					((SFHudInfoPanel *)pElement)->SetPriorityHintText( wszLocalized );				
 				}
+#else
+				GetCenterPrint()->Print( wszLocalized );
+#endif
 
 				m_fImmuneToGunGameDamageTimeLast = m_fImmuneToGunGameDamageTime;
 			}
 			else if ( flTimeLeft > 0.75f )
 			{
+#if defined( INCLUDE_SCALEFORM )
 				CHudElement *pElement = GetHud().FindElement( "SFHudInfoPanel" );
 				if ( pElement )														
 				{																	
 					((SFHudInfoPanel *)pElement)->SetPriorityHintText( g_pVGuiLocalize->Find( "#SFUI_Notice_WaveRespawning" ) );				
 				}
+#else
+				GetCenterPrint()->Print( g_pVGuiLocalize->Find( "#SFUI_Notice_WaveRespawning" ) );
+#endif
 
 				m_fImmuneToGunGameDamageTimeLast = m_fImmuneToGunGameDamageTime;
 			}
@@ -8292,6 +8323,7 @@ bool C_CSPlayer::CanUseGrenade( CSWeaponID nID )
 
 void C_CSPlayer::DisplayInventory( bool showPistol )
 {
+#if defined( INCLUDE_SCALEFORM )
 	if ( !C_BasePlayer::GetLocalPlayer() || !engine->IsLocalPlayerResolvable() )
 		return;
 
@@ -8332,6 +8364,7 @@ void C_CSPlayer::DisplayInventory( bool showPistol )
 		pItemHistory->AddToHistory( "defuser", "#Cstrike_BMDefuser" );
 	}
 	*/
+#endif
 }
 
 MedalRank_t C_CSPlayer::GetRank( MedalCategory_t category )

@@ -24,7 +24,9 @@
 #include "playerdecals_signature.h"
 #include "tier1/callqueue.h"
 #include "engine/decal_flags.h"
+#if defined( INCLUDE_SCALEFORM )
 #include "cstrike15/Scaleform/HUD/sfhud_rosettaselector.h"
+#endif
 #include "c_cs_player.h"
 
 // memdbgon must be the last include file in a .cpp file!!!
@@ -342,6 +344,20 @@ void C_FEPlayerDecal::PostDataUpdate( DataUpdateType_t updateType )
 
 DEVELOPMENT_ONLY_CONVAR( cl_playerspray_debug_pulse_force, 0 );
 
+#if !defined( INCLUDE_SCALEFORM )
+bool Helper_CanUseSprays( void )
+{
+	if ( g_bEngineIsHLTV )
+		return false;
+
+	C_CSPlayer *pLocalPlayer = C_CSPlayer::GetLocalCSPlayer();
+	if ( !pLocalPlayer )
+		return false;
+
+	return pLocalPlayer->IsAlive() && ( pLocalPlayer->GetTeamNumber() == TEAM_TERRORIST || pLocalPlayer->GetTeamNumber() == TEAM_CT );
+}
+#endif
+
 // Checks if the local player has an equipped spray and is aiming in a sprayable area with the rosetta menu up and if cooldown is ready
 // Note: rosetta menu code is using this check to determine if we're passing all the validity checks to spray. 
 bool Helper_CanShowPreviewDecal( CEconItemView **ppOutEconItemView = NULL, trace_t* pOutSprayTrace = NULL, Vector *pOutVecPlayerRight = NULL, uint32* pOutUnStickerKitID = NULL )
@@ -355,10 +371,12 @@ bool Helper_CanShowPreviewDecal( CEconItemView **ppOutEconItemView = NULL, trace
 
 	if ( !cl_playerspray_debug_pulse_force.GetInt() )
 	{
+#if defined( INCLUDE_SCALEFORM )
 		// Check if UI is visible
 		SFHudRosettaSelector* pRosetta = ( SFHudRosettaSelector* ) ( GetHud( 0 ).FindElement( "SFHudRosettaSelector" ) );
 		if ( !pRosetta || !pRosetta->Visible() || !pRosetta->ShouldDraw() )
 			return false;
+#endif
 
 		// Check player spray cooldown
 		if ( pLocalPlayer->GetNextDecalTime() > gpGlobals->curtime )

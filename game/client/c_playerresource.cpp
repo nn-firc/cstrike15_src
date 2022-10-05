@@ -96,7 +96,9 @@ C_PlayerResource::C_PlayerResource()
 
 	g_PR = this;
 
+#if defined( INCLUDE_SCALEFORM )
 	g_pScaleformUI->AddDeviceDependentObject( this );
+#endif
 }
 
 //-----------------------------------------------------------------------------
@@ -104,6 +106,9 @@ C_PlayerResource::C_PlayerResource()
 //-----------------------------------------------------------------------------
 C_PlayerResource::~C_PlayerResource()
 {
+	g_PR = NULL;
+
+#if defined( INCLUDE_SCALEFORM )
 	for ( int i = 1; i <= MAX_PLAYERS; i++ )
 	{
 		if ( m_Xuids[i] != INVALID_XUID )
@@ -112,9 +117,8 @@ C_PlayerResource::~C_PlayerResource()
 		}
 	}
 
-	g_PR = NULL;
-
 	g_pScaleformUI->RemoveDeviceDependentObject( this );
+#endif
 }
 
 void C_PlayerResource::OnDataChanged(DataUpdateType_t updateType)
@@ -156,6 +160,7 @@ void C_PlayerResource::UpdateXuids( void )
 
 		if ( newXuid != m_Xuids[i] )
 		{
+#if defined( INCLUDE_SCALEFORM )
 			bool bAddRefSuccess = false;
 
 			if ( m_Xuids[i] != INVALID_XUID )
@@ -169,6 +174,7 @@ void C_PlayerResource::UpdateXuids( void )
 			}
 
 			if ( bAddRefSuccess || ( newXuid == INVALID_XUID ) )
+#endif
 			{
 				m_Xuids[i] = newXuid;
 			}
@@ -687,6 +693,7 @@ void C_PlayerResource::FillXuidText( int iIndex, char *buf, int bufSize )
 	}
 }
 
+#if defined( INCLUDE_SCALEFORM )
 void C_PlayerResource::DeviceLost( void )
 {
 	for ( int i = 1; i <= MAX_PLAYERS; i++ )
@@ -703,3 +710,4 @@ void C_PlayerResource::DeviceReset( void *pDevice, void *pPresentParameters, voi
 {
 	UpdateXuids();
 }
+#endif

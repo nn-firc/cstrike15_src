@@ -640,16 +640,24 @@ InitReturnVal_t CAppSystemGroup::InitSystems()
 {
 	for (int nSystemsInitialized = 0; nSystemsInitialized < m_Systems.Count(); ++nSystemsInitialized )
 	{
-		InitReturnVal_t nRetVal = m_Systems[nSystemsInitialized]->Init();
-		if ( nRetVal != INIT_OK )
+		IAppSystem* appSystem = m_Systems[nSystemsInitialized];
+		if ( appSystem )
 		{
-			for( int nSystemsRewind = nSystemsInitialized; nSystemsRewind-->0; )
+			InitReturnVal_t nRetVal = appSystem->Init();
+			if ( nRetVal != INIT_OK )
 			{
-				m_Systems[nSystemsRewind]->Shutdown();
+				for ( int nSystemsRewind = nSystemsInitialized; nSystemsRewind-- > 0; )
+				{
+					m_Systems[nSystemsRewind]->Shutdown();
+				}
+
+				ReportStartupFailure( INITIALIZATION, nSystemsInitialized );
+				return nRetVal;
 			}
-		
-			ReportStartupFailure( INITIALIZATION, nSystemsInitialized );
-			return nRetVal;
+		}
+		else
+		{
+			return INIT_FAILED;
 		}
 	}
 	return INIT_OK;

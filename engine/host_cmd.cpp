@@ -70,7 +70,6 @@
 #include "tls_ps3.h"
 #endif
 #include "filesystem/IQueuedLoader.h"
-#include "filesystem/IXboxInstaller.h"
 #include "toolframework/itoolframework.h"
 #include "fmtstr.h"
 #include "tier3/tier3.h"

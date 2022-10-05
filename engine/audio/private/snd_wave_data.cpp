@@ -1146,7 +1146,7 @@ void CAsyncWaveData::StartAsyncLoading( const asyncwaveparams_t& params )
 		// resolve to absolute name now, where path can be filtered to just the zips (fast find, no real i/o)
 		// otherwise the dvd will do a costly seek for each zip miss due to search path fall through
 		PathTypeQuery_t pathType;
-		if ( !g_pFileSystem->RelativePathToFullPath( m_async.pszFilename, m_async.pszPathID, szFullName, sizeof( szFullName ), GetAudioPathFilter(), &pathType ) )
+		if ( !g_pFileSystem->RelativePathToFullPath( m_async.pszFilename, m_async.pszPathID, szFullName, sizeof( szFullName ), FILTER_CULLNONPACK, &pathType ) )
 		{
 			// not found, do callback now to handle error
 			m_async.pfnCallback( m_async, 0, FSASYNC_ERR_FILEOPEN );
@@ -1374,14 +1374,7 @@ bool CAsyncWavDataCache::Init( unsigned int memSize )
 		}
 		else if ( StringHasPrefix( Q_UnqualifiedFileName( pGame ), "left4dead2") )
 		{
-			if ( g_pFullFileSystem->IsDVDHosted() )
-			{
-				memSize = CONSOLE_STREAMING_AUDIO_LEFT4DEAD_DVD;
-			}
-			else
-			{
-				memSize = CONSOLE_STREAMING_AUDIO_LEFT4DEAD;
-			}
+			memSize = CONSOLE_STREAMING_AUDIO_LEFT4DEAD;
 		}
 		else if ( StringHasPrefix( Q_UnqualifiedFileName( pGame ), "portal2") )
 		{

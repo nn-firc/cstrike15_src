@@ -551,18 +551,6 @@ int CAudioSourceWave::GetQuality()
 	return ( m_format == WAVE_FORMAT_XMA ? m_quality : 0 );
 }
 
-PathTypeFilter_t GetAudioPathFilter()
-{
-	if ( XBX_IsAudioLocalized() && force_audio_english.GetBool() )
-	{
-		// skip the localized search paths and fall through to the primary zips
-		return FILTER_CULLLOCALIZED;
-	}
-
-	// No audio exists outside of zips, all the audio is inside the zips
-	return FILTER_CULLNONPACK;
-}
-
 //-----------------------------------------------------------------------------
 // Load a native xaudio or legacy wav
 //-----------------------------------------------------------------------------
@@ -581,7 +569,7 @@ bool CAudioSourceWave::GetXboxAudioStartupData()
 	V_FixDoubleSlashes( fileName );
 	PathTypeQuery_t pathType;
 	char szFullName[MAX_PATH];
-	if ( !g_pFullFileSystem->RelativePathToFullPath( fileName, "GAME", szFullName, sizeof( szFullName ), GetAudioPathFilter(), &pathType ) )
+	if ( !g_pFullFileSystem->RelativePathToFullPath( fileName, "GAME", szFullName, sizeof( szFullName ), FILTER_CULLNONPACK, &pathType ) )
 	{
 		// not found, not supported
 		return false;

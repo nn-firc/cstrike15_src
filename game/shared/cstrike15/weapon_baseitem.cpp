@@ -11,7 +11,9 @@
 
 #if defined( CLIENT_DLL )
 #include "c_cs_player.h"
+#if defined( INCLUDE_SCALEFORM )
 #include "HUD/sfweaponselection.h"
+#endif
 #else
 #include "cs_player.h"
 #endif // CLIENT_DLL
@@ -222,7 +224,7 @@ void CWeaponBaseItem::ItemPostFrame( void )
 			pPlayer->SwitchToNextBestWeapon( this );
 		}
 
-#if defined (CLIENT_DLL)
+#if defined (CLIENT_DLL) && defined( INCLUDE_SCALEFORM )
 		// when an item is removed, force the local player to update their inventory screen
 		C_CSPlayer *pLocalPlayer = C_CSPlayer::GetLocalCSPlayer();
 		if ( pLocalPlayer && pLocalPlayer == pPlayer )

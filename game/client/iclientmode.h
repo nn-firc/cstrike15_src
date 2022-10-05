@@ -143,6 +143,5 @@ public:
 };	
 
 extern IClientMode *GetClientMode();
-extern IClientMode *GetFullscreenClientMode();
 
 #endif

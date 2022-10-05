@@ -12,7 +12,9 @@
 #include "tier3/tier3.h"
 #ifdef CLIENT_DLL
 #include "c_cs_player.h"
+#if defined( INCLUDE_SCALEFORM )
 #include "itempickup_scaleform.h"
+#endif
 #include "keyvalues.h"
 #include "filesystem.h"
 #include "ienginevgui.h"
@@ -1565,6 +1567,7 @@ bool CCSPlayerInventory::ClearLoadoutSlot( int iTeam, int iSlot )
 
 
 #ifdef CLIENT_DLL
+#if defined( INCLUDE_SCALEFORM )
 //
 // Inventory image provider for Scaleform
 //
@@ -1654,6 +1657,7 @@ CEconItemView * CEconItemView::FindOrCreateEconItemViewForItemID( uint64 uiItemI
 {
 	return g_ScaleformInventoryImageProviderImpl.FindOrCreateEconItemViewForItemID( uiItemId );
 }
+#endif
 
 #else
 
@@ -1737,6 +1741,7 @@ void CCSPlayerInventory::ItemHasBeenUpdated( CEconItemView *pItem, bool bUpdateA
 	}
 #endif
 
+#if defined( INCLUDE_SCALEFORM )
 #ifdef CLIENT_DLL
 	// Assert that this item belongs to this inventory and store the mapping to owner
 	CSteamID owner( this->GetOwner().ID() );
@@ -1745,9 +1750,7 @@ void CCSPlayerInventory::ItemHasBeenUpdated( CEconItemView *pItem, bool bUpdateA
 
 	// Make sure that the item inventory image is updated no that the item can be found in the mapping
 	g_pScaleformUI->InventoryImageUpdate( pItem->GetItemID(), g_pIScaleformInventoryImageProvider );
-
-
-
+#endif
 #endif
 }
 

@@ -1402,40 +1402,6 @@ wchar_t *UTIL_GetLocalizedKeyString( const char *command, const char *fmt, const
 	return useString[index];
 }
 
-void UTIL_GetClientStatusText( char *buffer, int nSize )
-{
-	if ( !buffer || nSize==0 ) {return;}
-	buffer[0] = 0;
-
-#if defined ( CSTRIKE15 )
-	extern float g_flReadyToCheckForPCBootInvite;
-	bool bStartupFinished = g_flReadyToCheckForPCBootInvite && ( ( Plat_FloatTime() - g_flReadyToCheckForPCBootInvite ) > 1.5f );
-	if ( bStartupFinished )
-		Q_snprintf( buffer, nSize, "+" );
-	if ( nSize <= 2 )
-		return;
-
-	C_CS_PlayerResource *pCSPR = ( C_CS_PlayerResource* )GameResources();
-	if (pCSPR)
-	{
-		Q_snprintf( buffer, nSize, "%sPlayers: ", ( bStartupFinished ? "+" : "" ) );
-		for ( int i = 1; i <= MAX_PLAYERS; i++ )
-		{
-			if ( pCSPR->IsConnected(i) )
-			{
-				const char *name = pCSPR->GetPlayerName(i);
-				if (name && name[0])
-				{
-					V_strncat( buffer, name, nSize );
-					V_strncat( buffer, ", ", nSize );
-				}
-			}
-		}
-		buffer[nSize-1]=0;
-	}
-#endif
-}
-
 void UTIL_ClearTrace( trace_t &trace )
 {
 	memset( &trace, 0, sizeof(trace));

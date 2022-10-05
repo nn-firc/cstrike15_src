@@ -60,7 +60,6 @@
 #include "p4lib/ip4.h"
 #include "inputsystem/iinputsystem.h"
 #include "filesystem/IQueuedLoader.h"
-#include "filesystem/IXboxInstaller.h"
 #include "reslistgenerator.h"
 #include "tier1/fmtstr.h"
 #include "steam/steam_api.h"
@@ -1715,20 +1714,6 @@ extern "C" DLL_EXPORT int LauncherMain( int argc, char **argv )
 		!CommandLine()->CheckParm( "-basedir" ) )
 	{
 		CommandLine()->AppendParm( "-basedir", g_pPS3PathInfo->GameImagePath() );
-	}
-#endif
-	
-#ifndef _CERT
-	if ( CommandLine()->CheckParm( "-tslist" ) )
-	{
-		//TestThreads(1);
-		int nTests = 10000;
-		DevMsg("Running TSList tests\n");
-		RunTSListTests( nTests );
-		DevMsg("Running TSQueue tests\n");
-		RunTSQueueTests( nTests );
-		DevMsg("Running Thread Pool tests\n");
-		RunThreadPoolTests();
 	}
 #endif
 

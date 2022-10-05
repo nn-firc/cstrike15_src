@@ -543,7 +543,7 @@ public:
 	float					m_flAutomationDelay;
 	float					m_flAutomationTime;
 
-	// A pause from an input require	s another input to unpause (it's a hard pause)
+	// A pause from an input requires another input to unpause (it's a hard pause)
 	bool					m_bPausedViaInput;
 
 // Moved for cache [9/22/2010 tom]

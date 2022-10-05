@@ -23,7 +23,6 @@
 #include "networkstringtable_clientdll.h"
 #include "voice_status.h"
 #include "filesystem.h"
-#include "filesystem/IXboxInstaller.h"
 #include "c_te_legacytempents.h"
 #include "c_rope.h"
 #include "engine/ishadowmgr.h"
@@ -104,7 +103,6 @@
 #include "videocfg/videocfg.h"
 #include "tier2/tier2_logging.h"
 #include "Sprite.h"
-#include "hud_savestatus.h"
 #include "vgui_video.h"
 #if defined( CSTRIKE15 )
 #include "gametypes/igametypes.h"
@@ -112,6 +110,8 @@
 #include "cs_workshop_manager.h"
 #include "c_team.h"
 #include "cstrike15/fatdemo.h"
+#include "cs_gamerules.h"
+#include "c_cs_player.h"
 #endif
 
 #include "mumble.h"
@@ -158,11 +158,13 @@
 #include "iachievementmgr.h"
 #include "hud.h"
 #include "hud_element_helper.h"
+#if defined( INCLUDE_SCALEFORM )
 #include "Scaleform/HUD/sfhud_chat.h"
 #include "Scaleform/HUD/sfhud_radio.h"
 #include "Scaleform/options_scaleform.h"
 #include "Scaleform/loadingscreen_scaleform.h"
 #include "Scaleform/HUD/sfhud_deathnotice.h"
+#endif
 #endif
 
 #ifdef PORTAL
@@ -957,7 +959,6 @@ public:
 	virtual void			OnScreenSizeChanged( int nOldWidth, int nOldHeight );
 	virtual IMaterialProxy *InstantiateMaterialProxy( const char *proxyName );
 
-	virtual vgui::VPANEL	GetFullscreenClientDLLVPanel( void );
 	virtual void			MarkEntitiesAsTouching( IClientEntity *e1, IClientEntity *e2 );
 	virtual void			OnKeyBindingChanged( ButtonCode_t buttonCode, char const *pchKeyName, char const *pchNewBinding );
 	virtual bool			HandleGameUIEvent( const InputEvent_t &event );
@@ -972,11 +973,7 @@ public:
 	
 	virtual void			ResetHudCloseCaption();
 
-	virtual void			Hud_SaveStarted();
-
 	virtual void			ShutdownMovies();
-
-	virtual void			GetStatus( char *buffer, int bufsize );
 
 #if defined ( CSTRIKE15 )
 	virtual bool			IsChatRaised( void );
@@ -1228,10 +1225,8 @@ bool InitParticleManager()
 	return true;
 }
 
-CEG_NOINLINE bool InitGameSystems( CreateInterfaceFn appSystemFactory )
+bool InitGameSystems( CreateInterfaceFn appSystemFactory )
 {
-	CEG_ENCRYPT_FUNCTION( InitGameSystems );
-
 	if (!VGui_Startup( appSystemFactory ))
 		return false;
 
@@ -1274,18 +1269,10 @@ CEG_NOINLINE bool InitGameSystems( CreateInterfaceFn appSystemFactory )
 
 	modemanager->Init( );
 
-	// Load the ClientScheme just once
-	vgui::scheme()->LoadSchemeFromFileEx( VGui_GetFullscreenRootVPANEL(), "resource/ClientScheme.res", "ClientScheme");
-
 	for ( int hh = 0; hh < MAX_SPLITSCREEN_PLAYERS; ++hh )
 	{
 		ACTIVE_SPLITSCREEN_PLAYER_GUARD_VGUI( hh );
 		GetClientMode()->InitViewport();
-
-		if ( hh == 0 )
-		{
-			GetFullscreenClientMode()->InitViewport();
-		}
 	}
 
 	for ( int hh = 0; hh < MAX_SPLITSCREEN_PLAYERS; ++hh )
@@ -1298,11 +1285,6 @@ CEG_NOINLINE bool InitGameSystems( CreateInterfaceFn appSystemFactory )
 	{
 		ACTIVE_SPLITSCREEN_PLAYER_GUARD_VGUI( hh );
 		GetClientMode()->Init();
-
-		if ( hh == 0 )
-		{
-			GetFullscreenClientMode()->Init();
-		}
 	}
 
 	if ( !IGameSystem::InitAllSystems() )
@@ -1312,11 +1294,6 @@ CEG_NOINLINE bool InitGameSystems( CreateInterfaceFn appSystemFactory )
 	{
 		ACTIVE_SPLITSCREEN_PLAYER_GUARD_VGUI( hh );
 		GetClientMode()->Enable();
-
-		if ( hh == 0 )
-		{
-			GetFullscreenClientMode()->EnableWithRootPanel( VGui_GetFullscreenRootVPANEL() );
-		}
 	}	
 
 	// Each mod is required to implement this
@@ -1386,12 +1363,6 @@ CON_COMMAND( cl_modemanager_reload, "Reloads the panel metaclasses for vgui scre
 //-----------------------------------------------------------------------------
 int CHLClient::Connect( CreateInterfaceFn appSystemFactory, CGlobalVarsBase *pGlobals )
 {
-	if( !STEAMWORKS_INITCEGLIBRARY() )
-	{
-		return false;
-	}
-	STEAMWORKS_REGISTERTHREAD();
-
 	InitCRTMemDebug();
 	MathLib_Init( 2.2f, 2.2f, 0.0f, 2.0f );
 
@@ -1443,17 +1414,11 @@ int CHLClient::Connect( CreateInterfaceFn appSystemFactory, CGlobalVarsBase *pGl
 void CHLClient::Disconnect()
 {
 	ConVar_Unregister( );
-
-	STEAMWORKS_UNREGISTERTHREAD();
-	STEAMWORKS_TERMCEGLIBRARY();
 }
 
 
 int CHLClient::Init( CreateInterfaceFn appSystemFactory, CGlobalVarsBase *pGlobals )
 {
-	STEAMWORKS_TESTSECRETALWAYS();
-	STEAMWORKS_SELFCHECK();
-
 	COM_TimestampedLog( "ClientDLL factories - Start" );
 	// We aren't happy unless we get all of our interfaces.
 	// please don't collapse this into one monolithic boolean expression (impossible to debug)
@@ -1716,12 +1681,8 @@ int CHLClient::Init( CreateInterfaceFn appSystemFactory, CGlobalVarsBase *pGloba
 //-----------------------------------------------------------------------------
 // Purpose: Called after client & server DLL are loaded and all systems initialized
 //-----------------------------------------------------------------------------
-CEG_NOINLINE void CHLClient::PostInit()
+void CHLClient::PostInit()
 {
-	CEG_PROTECT_VIRTUAL_FUNCTION( CHLCLient_PostInit );
-
-	Init_GCVs();
-
 	COM_TimestampedLog( "IGameSystem::PostInitAllSystems - Start" );
 	IGameSystem::PostInitAllSystems();
 	COM_TimestampedLog( "IGameSystem::PostInitAllSystems - Finish" );
@@ -1736,14 +1697,12 @@ CEG_NOINLINE void CHLClient::PostInit()
 	// allow sixnese input to perform post-init operations
 		g_pSixenseInput->PostInit();
 #endif
-
-	STEAMWORKS_TESTSECRETALWAYS();
 }
 
 //-----------------------------------------------------------------------------
 // Purpose: Called when the client .dll is being dismissed
 //-----------------------------------------------------------------------------
-CEG_NOINLINE void CHLClient::Shutdown( void )
+void CHLClient::Shutdown( void )
 {
 	if ( g_pRenderToRTHelper )
 	{
@@ -1785,25 +1744,13 @@ CEG_NOINLINE void CHLClient::Shutdown( void )
 	{
 		ACTIVE_SPLITSCREEN_PLAYER_GUARD_VGUI( hh );
 		GetClientMode()->Disable();
-
-		if ( hh == 0 )
-		{
-			GetFullscreenClientMode()->Disable();
-		}
 	}
 
 	for ( int hh = 0; hh < MAX_SPLITSCREEN_PLAYERS; ++hh )
 	{
 		ACTIVE_SPLITSCREEN_PLAYER_GUARD_VGUI( hh );
 		GetClientMode()->Shutdown();
-
-		if ( hh == 0 )
-		{
-			GetFullscreenClientMode()->Shutdown();
-		}
 	}
-
-	CEG_PROTECT_VIRTUAL_FUNCTION( CHLClient_Shutdown );
 
 	input->Shutdown_All();
 	C_BaseTempEntity::ClearDynamicTempEnts();
@@ -2393,10 +2340,8 @@ GPUMemLevel_t GetGPUMemLevel()
 
 ConVar cl_disable_splitscreen_cpu_level_cfgs_in_pip( "cl_disable_splitscreen_cpu_level_cfgs_in_pip", "1", 0, "" );
 
-CEG_NOINLINE void ConfigureCurrentSystemLevel()
+void ConfigureCurrentSystemLevel()
 {
-	CEG_ENCRYPT_FUNCTION( ConfigureCurrentSystemLevel );
-
 	int nCPULevel = GetCPULevel();
 	if ( nCPULevel == CPU_LEVEL_360 )
 	{
@@ -2484,7 +2429,7 @@ CEG_NOINLINE void ConfigureCurrentSystemLevel()
 //-----------------------------------------------------------------------------
 // Purpose: Per level init
 //-----------------------------------------------------------------------------
-CEG_NOINLINE void CHLClient::LevelInitPreEntity( char const* pMapName )
+void CHLClient::LevelInitPreEntity( char const* pMapName )
 {
 	// HACK: Bogus, but the logic is too complicated in the engine
 	if (g_bLevelInitialized)
@@ -2524,8 +2469,6 @@ CEG_NOINLINE void CHLClient::LevelInitPreEntity( char const* pMapName )
 		ACTIVE_SPLITSCREEN_PLAYER_GUARD( hh );
 		ResetToneMapping(1.0);
 	}
-
-	CEG_PROTECT_MEMBER_FUNCTION( CHLClient_LevelInitPreEntity );
 
 	IGameSystem::LevelInitPreEntityAllSystems(pMapName);
 
@@ -2593,7 +2536,7 @@ CEG_NOINLINE void CHLClient::LevelInitPreEntity( char const* pMapName )
 //-----------------------------------------------------------------------------
 // Purpose: Per level init
 //-----------------------------------------------------------------------------
-CEG_NOINLINE void CHLClient::LevelInitPostEntity( )
+void CHLClient::LevelInitPostEntity( )
 {
 	ABS_QUERY_GUARD( true );
 
@@ -2608,8 +2551,6 @@ CEG_NOINLINE void CHLClient::LevelInitPostEntity( )
 	}
 
 	g_HltvReplaySystem.OnLevelInit();
-
-	CEG_PROTECT_MEMBER_FUNCTION( CHLClient_LevelInitPostEntity );
 }
 
 //-----------------------------------------------------------------------------
@@ -2629,7 +2570,7 @@ void CHLClient::ResetStringTablePointers()
 //-----------------------------------------------------------------------------
 // Purpose: Per level de-init
 //-----------------------------------------------------------------------------
-CEG_NOINLINE void CHLClient::LevelShutdown( void )
+void CHLClient::LevelShutdown( void )
 {
 	g_HltvReplaySystem.OnLevelShutdown();
 
@@ -2670,8 +2611,6 @@ CEG_NOINLINE void CHLClient::LevelShutdown( void )
 		pClassList->LevelShutdown();
 		pClassList = pClassList->m_pNextClassList;
 	}
-
-	CEG_ENCRYPT_FUNCTION( CHLClient_LevelShutdown );
 
 	// Now do the post-entity shutdown of all systems
 	IGameSystem::LevelShutdownPostEntityAllSystems();
@@ -2948,8 +2887,6 @@ void CHLClient::PrecacheMaterial( const char *pMaterialName )
 	{
 		*pFound = 0;
 	}
-
-	RANDOM_CEG_TEST_SECRET_PERIOD( 0x0400, 0x0fff );
 		
 	IMaterial *pMaterial = materials->FindMaterial( pTempBuf, TEXTURE_GROUP_PRECACHED );
 	if ( !IsErrorMaterial( pMaterial ) )
@@ -3558,23 +3495,19 @@ void CHLClient::WriteSaveHeaders( CSaveRestoreData *s )
 	g_pGameSaveRestoreBlockSet->PostSave();
 }
 
-CEG_NOINLINE void CHLClient::ReadRestoreHeaders( CSaveRestoreData *s )
+void CHLClient::ReadRestoreHeaders( CSaveRestoreData *s )
 {
 	CRestore restoreHelper( s );
-
-	CEG_ENCRYPT_FUNCTION( CHLClient_ReadRestoreHeaders );
 
 	g_pGameSaveRestoreBlockSet->PreRestore();
 	g_pGameSaveRestoreBlockSet->ReadRestoreHeaders( &restoreHelper );
 }
 
-CEG_NOINLINE void CHLClient::Restore( CSaveRestoreData *s, bool b )
+void CHLClient::Restore( CSaveRestoreData *s, bool b )
 {
 	CRestore restore(s);
 	g_pGameSaveRestoreBlockSet->Restore( &restore, b );
 	g_pGameSaveRestoreBlockSet->PostRestore();
-
-	CEG_PROTECT_VIRTUAL_FUNCTION( CHLClient_Restore );
 }
 
 static CUtlVector<EHANDLE> g_RestoredEntities;
@@ -3632,7 +3565,6 @@ void CHLClient::EmitCloseCaption( char const *captionname, float duration )
 
 	if ( m_pHudCloseCaption )
 	{
-		RANDOM_CEG_TEST_SECRET_PERIOD( 0x40, 0xff )
 		m_pHudCloseCaption->ProcessCaption( captionname, duration );
 	}
 }
@@ -3943,7 +3875,7 @@ void CHLClient::OnActiveSplitscreenPlayerChanged( int nNewSlot )
 {
 }
 
-CEG_NOINLINE void CHLClient::OnSplitScreenStateChanged()
+void CHLClient::OnSplitScreenStateChanged()
 {
 	VGui_OnSplitScreenStateChanged();
 	IterateRemoteSplitScreenViewSlots_Push( true );
@@ -3954,10 +3886,6 @@ CEG_NOINLINE void CHLClient::OnSplitScreenStateChanged()
 		GetHud().OnSplitScreenStateChanged();
 	}
 	IterateRemoteSplitScreenViewSlots_Pop();
-
-	CEG_ENCRYPT_FUNCTION( CHLClient_OnSplitScreenStateChanged );
-
-	GetFullscreenClientMode()->Layout( true );
 
 #if 0
 	// APS: This cannot be done in this way, the schemes also need to be reloaded as they hook the fonts and
@@ -4021,11 +3949,6 @@ IMaterialProxy *CHLClient::InstantiateMaterialProxy( const char *proxyName )
 		return pProxy;
 #endif
 	return GetMaterialProxyDict().CreateProxy( proxyName );
-}
-
-vgui::VPANEL CHLClient::GetFullscreenClientDLLVPanel( void )
-{
-	return VGui_GetFullscreenRootVPANEL();
 }
 
 int XBX_GetActiveUserId()
@@ -4166,28 +4089,15 @@ void CHLClient::ResetHudCloseCaption()
 	}
 }
 
-void CHLClient::Hud_SaveStarted()
-{
-	CHudSaveStatus *pSaveStatus = GET_FULLSCREEN_HUDELEMENT( CHudSaveStatus );
-	if ( pSaveStatus )
-	{
-		pSaveStatus->SaveStarted();
-	}
-}
-
 void CHLClient::ShutdownMovies()
 {
 	//VGui_StopAllVideoPanels();
 }
 
-void CHLClient::GetStatus( char *buffer, int bufsize )
-{
-	UTIL_GetClientStatusText( buffer, bufsize );
-}
-
 #if defined ( CSTRIKE15 )
 bool CHLClient::IsChatRaised( void )
 {
+#if defined( INCLUDE_SCALEFORM )
 	SFHudChat* pChat = GET_HUDELEMENT( SFHudChat );
 
 	if ( pChat == NULL )
@@ -4198,10 +4108,15 @@ bool CHLClient::IsChatRaised( void )
 	{
 		return pChat->ChatRaised();
 	}
+#else
+	DevWarning( "CHLClient::IsCharRaised TODO\n" );
+	return false;
+#endif
 }
 
 bool CHLClient::IsRadioPanelRaised( void )
 {
+#if defined( INCLUDE_SCALEFORM )
 	SFHudRadio* pRadio = GET_HUDELEMENT( SFHudRadio );
 
 	if ( pRadio == NULL )
@@ -4212,12 +4127,21 @@ bool CHLClient::IsRadioPanelRaised( void )
 	{
 		return pRadio->PanelRaised();
 	}
+#else
+	DevWarning( "CHLClient::IsRadioPanelRaised TODO\n" );
+	return false;
+#endif
 }
 
 
 bool CHLClient::IsBindMenuRaised( void )
 {
+#if defined( INCLUDE_SCALEFORM )
 	return COptionsScaleform::IsBindMenuRaised();
+#else
+	DevWarning( "CHLClient::IsBindMenuRaised TODO\n" );
+	return false;
+#endif
 }
 
 bool CHLClient::IsTeamMenuRaised( void )
@@ -4238,7 +4162,12 @@ bool CHLClient::IsTeamMenuRaised( void )
 
 bool CHLClient::IsLoadingScreenRaised( void )
 {
+#if defined( INCLUDE_SCALEFORM )
 	return CLoadingScreenScaleform::IsOpen();
+#else
+	DevWarning( "CHLClient::IsLoadingScreenRaised TODO\n" );
+	return false;
+#endif
 }
 
 #endif // CSTRIKE15

@@ -864,7 +864,7 @@ CHudCloseCaption::CHudCloseCaption( const char *pElementName )
 	m_bPaintDebugInfo( false ),
 	m_ColorMap( k_eDictCompareTypeCaseInsensitive )
 {
-	vgui::Panel *pParent = GetFullscreenClientMode()->GetViewport();
+	vgui::Panel *pParent = GetClientMode()->GetViewport();
 	SetParent( pParent );
 
 	SetProportional( true );

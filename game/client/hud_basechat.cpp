@@ -755,7 +755,7 @@ CBaseHudChat::CBaseHudChat( const char *pElementName )
 	Assert( g_pHudChat == NULL );
 	g_pHudChat = this;
 
-	vgui::Panel *pParent = GetFullscreenClientMode()->GetViewport();
+	vgui::Panel *pParent = GetClientMode()->GetViewport();
 	SetParent( pParent );
 
 	vgui::HScheme scheme = vgui::scheme()->LoadSchemeFromFileEx( NULL, "resource/ChatScheme.res", "ChatScheme" );
