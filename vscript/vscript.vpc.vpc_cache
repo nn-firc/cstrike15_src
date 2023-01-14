@@ -1,13 +1,12 @@
 "vpc_cache"
 {
 	"CacheVersion"		"1"
-	"win32"
+	"linux64"
 	{
-		"CRCFile"		"vscript.vcxproj.vpc_crc"
+		"CRCFile"		"vscript_linux64.mak.vpc_crc"
 		"OutputFiles"
 		{
-			"0"		"vscript.vcxproj"
-			"1"		"vscript.vcxproj.filters"
+			"0"		"vscript_linux64.mak"
 		}
 	}
 }

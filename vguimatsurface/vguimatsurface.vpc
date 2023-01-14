@@ -13,6 +13,9 @@ $Configuration
 {
 	$Compiler
 	{
+        //lwss - add freetype directory
+        $AdditionalIncludeDirectories		"$BASE;/usr/include/freetype2"	[$LINUXALL]
+        //lwss end
 		$PreprocessorDefinitions		"$BASE;BENCHMARK;VGUIMATSURFACE_DLL_EXPORT;GAMEUI_EXPORTS;DONT_PROTECT_FILEIO_FUNCTIONS;PROTECTED_THINGS_ENABLE"
 		$PreprocessorDefinitions		"$BASE;fopen=dont_use_fopen" [$WINDOWS]
 		$PreprocessorDefinitions		"$BASE;ENABLE_CHROMEHTMLWINDOW"

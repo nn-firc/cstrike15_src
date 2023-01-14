@@ -1,13 +1,12 @@
 "vpc_cache"
 {
 	"CacheVersion"		"1"
-	"win32"
+	"linux64"
 	{
-		"CRCFile"		"tier3.vcxproj.vpc_crc"
+		"CRCFile"		"tier3_linux64.mak.vpc_crc"
 		"OutputFiles"
 		{
-			"0"		"tier3.vcxproj"
-			"1"		"tier3.vcxproj.filters"
+			"0"		"tier3_linux64.mak"
 		}
 	}
 }

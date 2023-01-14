@@ -1,4 +1,4 @@
-//==== Copyright © 1996-2008, Valve Corporation, All rights reserved. =======//
+//==== Copyright ï¿½ 1996-2008, Valve Corporation, All rights reserved. =======//
 //
 // Purpose: 
 //
@@ -11,6 +11,7 @@
 #pragma once
 #endif
 
+#include "irendercontext.h" //lwss - add include for LockDesc_t
 #include "tier0/platform.h"
 #include "rendersystem/irenderdevice.h"
 

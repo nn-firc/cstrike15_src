@@ -1,13 +1,12 @@
 "vpc_cache"
 {
 	"CacheVersion"		"1"
-	"win32"
+	"linux64"
 	{
-		"CRCFile"		"fgdlib.vcxproj.vpc_crc"
+		"CRCFile"		"fgdlib_linux64.mak.vpc_crc"
 		"OutputFiles"
 		{
-			"0"		"fgdlib.vcxproj"
-			"1"		"fgdlib.vcxproj.filters"
+			"0"		"fgdlib_linux64.mak"
 		}
 	}
 }

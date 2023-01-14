@@ -12,6 +12,7 @@ $Configuration
 {
 	$Compiler
 	{
+		$GCC_ExtraCompilerFlags			"-Wno-narrowing" [$LINUXALL]
 		$AdditionalIncludeDirectories	"$BASE;..\public\mathlib"
 		$PreprocessorDefinitions		"$BASE;MATHLIB_LIB"
 	}

@@ -1,13 +1,12 @@
 "vpc_cache"
 {
 	"CacheVersion"		"1"
-	"win32"
+	"linux64"
 	{
-		"CRCFile"		"localize.vcxproj.vpc_crc"
+		"CRCFile"		"localize_linux64.mak.vpc_crc"
 		"OutputFiles"
 		{
-			"0"		"localize.vcxproj"
-			"1"		"localize.vcxproj.filters"
+			"0"		"localize_linux64.mak"
 		}
 	}
 }

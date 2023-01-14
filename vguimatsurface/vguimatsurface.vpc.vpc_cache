@@ -1,13 +1,12 @@
 "vpc_cache"
 {
 	"CacheVersion"		"1"
-	"win32"
+	"linux64"
 	{
-		"CRCFile"		"vguimatsurface.vcxproj.vpc_crc"
+		"CRCFile"		"vguimatsurface_linux64.mak.vpc_crc"
 		"OutputFiles"
 		{
-			"0"		"vguimatsurface.vcxproj"
-			"1"		"vguimatsurface.vcxproj.filters"
+			"0"		"vguimatsurface_linux64.mak"
 		}
 	}
 }

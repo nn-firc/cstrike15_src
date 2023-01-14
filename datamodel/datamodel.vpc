@@ -12,6 +12,7 @@ $Configuration
 {
 	$Compiler
 	{
+		$AdditionalIncludeDirectories			"$SRCDIR\public;$SRCDIR\public\tier0"
 		$PreprocessorDefinitions			"$BASE;DATAMODEL_LIB"
 		$PrecompiledHeaderFile				"Debug/datamodel.pch"
 	}

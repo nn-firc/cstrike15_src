@@ -25,6 +25,10 @@ $Configuration "Release"
 	$Compiler
 	{
 		$PreprocessorDefinitions		"$BASE;NDEBUG"
+		// lwss - disable cpp11 ABI so libraries <gcc 5 will work
+		// TODO: this is kinda hacky to put this here
+		$PreprocessorDefinitions		"$BASE;_GLIBCXX_USE_CXX11_ABI=0"
+		// lwss end
 		$OptimizerLevel					"-gdwarf-2 -g2 $(OptimizerLevel_CompilerSpecific)" [$OSXALL]
 		$OptimizerLevel					"-gdwarf-4 -g2 $(OptimizerLevel_CompilerSpecific)" [$LINUX]
 	}

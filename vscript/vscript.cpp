@@ -1,4 +1,4 @@
-//========== Copyright © 2008, Valve Corporation, All rights reserved. ========
+//========== Copyright ï¿½ 2008, Valve Corporation, All rights reserved. ========
 //
 // Purpose:
 //
@@ -14,6 +14,12 @@
 #include "tier1/tier1.h"
 
 
+// lwss - HACCCKKKKK for --wrap on fopen() not working with my gcc
+FILE *__wrap_fopen(const char *pathname, const char *mode)
+{
+    return fopen( pathname, mode );
+}
+// lwss end
 //-----------------------------------------------------------------------------
 //
 //-----------------------------------------------------------------------------

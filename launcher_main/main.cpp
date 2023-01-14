@@ -673,7 +673,9 @@ int main( int argc, char *argv[] )
 	
 	if ( !launcher )
 	{
-		printf( "Failed to load the launcher (%s)\n", dlerror() );
+	    //lwss - add dll path in error
+		printf( "Failed to load the launcher(%s) (%s)\n", pLauncherPath, dlerror() );
+		//lwss end
 		while(1);
 		return 0;
 	}

@@ -25,6 +25,12 @@ $Configuration
 		$AdditionalIncludeDirectories	"$BASE,$SRCDIR\ps3sdk\cell\host-common\include,$SRCDIR\ps3sdk\cell\target\common\include"	[$PS3SDKINSTALLED]
 		$PreprocessorDefinitions		"$BASE;MDLCACHE_DLL_EXPORT"
 	}
+	//lwss
+	$Compiler [$LINUXALL]
+	{
+		$GCC_ExtraCompilerFlags			"-shared -fPIC"
+	}
+	//lwss end
 }
 
 

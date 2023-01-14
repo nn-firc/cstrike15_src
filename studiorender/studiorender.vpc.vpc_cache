@@ -1,13 +1,12 @@
 "vpc_cache"
 {
 	"CacheVersion"		"1"
-	"win32"
+	"linux64"
 	{
-		"CRCFile"		"studiorender.vcxproj.vpc_crc"
+		"CRCFile"		"studiorender_linux64.mak.vpc_crc"
 		"OutputFiles"
 		{
-			"0"		"studiorender.vcxproj"
-			"1"		"studiorender.vcxproj.filters"
+			"0"		"studiorender_linux64.mak"
 		}
 	}
 }

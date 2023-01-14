@@ -33,7 +33,13 @@ $Configuration
 		$PreprocessorDefinitions		"$BASE;TIER0_DLL_EXPORT;CROSS_PLATFORM_VERSION=1;POSIX" [$PS3||$POSIX]
 		$PreprocessorDefinitions		"$BASE;TIER0_FPO_DISABLED"				[$NOFPO]		
 	}
-	
+
+	//lwss
+	$Compiler [$LINUXALL]
+	{
+		$GCC_ExtraCompilerFlags			"-shared -fPIC"
+	}
+	//lwss end
 	$Compiler [$WINDOWS]
 	{
 		$AdditionalIncludeDirectories	"$BASE;$VTUNE_INCLUDE"	[$VTUNE_ENABLED]

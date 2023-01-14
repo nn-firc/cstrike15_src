@@ -626,15 +626,15 @@ KeyValues::~KeyValues()
 {
 	TRACK_KV_REMOVE( this );
 
-	RemoveEverything();
+    RemoveEverything();
 }
 
 
 // for backwards compat - we used to need this to force the free to run from the same DLL
 // as the alloc
 void KeyValues::deleteThis()
-{ 
-	delete this; 
+{
+    delete this;
 }
 
 //-----------------------------------------------------------------------------

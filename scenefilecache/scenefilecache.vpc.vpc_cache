@@ -1,13 +1,12 @@
 "vpc_cache"
 {
 	"CacheVersion"		"1"
-	"win32"
+	"linux64"
 	{
-		"CRCFile"		"scenefilecache.vcxproj.vpc_crc"
+		"CRCFile"		"scenefilecache_linux64.mak.vpc_crc"
 		"OutputFiles"
 		{
-			"0"		"scenefilecache.vcxproj"
-			"1"		"scenefilecache.vcxproj.filters"
+			"0"		"scenefilecache_linux64.mak"
 		}
 	}
 }

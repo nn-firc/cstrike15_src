@@ -16,7 +16,7 @@
 # To install in $HOME instead of /usr/local, use:
 #    make install prefix=$HOME
 
-CC=/valve/bin/gcc-4.5.1 -fPIC
+CC=/usr/bin/gcc -fPIC
 
 CFLAGS=-O3 -D_LARGEFILE64_SOURCE=1
 #CFLAGS=-O -DMAX_WBITS=14 -DMAX_MEM_LEVEL=7
@@ -27,8 +27,8 @@ CFLAGS=-O3 -D_LARGEFILE64_SOURCE=1
 SFLAGS=-O3 -fPIC -D_LARGEFILE64_SOURCE=1
 LDFLAGS= -L. libz.a
 TEST_LDFLAGS=-L. libz.a
-LDSHARED=/valve/bin/gcc-4.5.1 -fPIC -shared -Wl,-soname,libz.so.1,--version-script,zlib.map
-CPP=/valve/bin/gcc-4.5.1 -fPIC -E
+LDSHARED=/usr/bin/gcc -fPIC -shared -Wl,-soname,libz.so.1,--version-script,zlib.map
+CPP=/usr/bin/gcc -fPIC -E
 
 STATICLIB=libz.a
 SHAREDLIB=libz.so

@@ -82,7 +82,9 @@ void LoadHudTextures( CUtlDict< CHudTexture *, int >& list, char *szFilenameWith
 	}
 
 	// Failed for some reason. Delete the Key data and abort.
-	pKeyValuesData->deleteThis();
+	// lwss - fix null deref
+	// pKeyValuesData->deleteThis();
+	// lwss end
 }
 
 //-----------------------------------------------------------------------------

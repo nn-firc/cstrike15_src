@@ -1,13 +1,12 @@
 "vpc_cache"
 {
 	"CacheVersion"		"1"
-	"win32"
+	"linux64"
 	{
-		"CRCFile"		"choreoobjects.vcxproj.vpc_crc"
+		"CRCFile"		"choreoobjects_linux64.mak.vpc_crc"
 		"OutputFiles"
 		{
-			"0"		"choreoobjects.vcxproj"
-			"1"		"choreoobjects.vcxproj.filters"
+			"0"		"choreoobjects_linux64.mak"
 		}
 	}
 }

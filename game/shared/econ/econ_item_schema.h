@@ -1,4 +1,4 @@
-//====== Copyright ©, Valve Corporation, All rights reserved. =======
+//====== Copyright ï¿½, Valve Corporation, All rights reserved. =======
 //
 // Purpose: EconItemSchema: Defines a schema for econ items
 //
@@ -1504,7 +1504,7 @@ public:
 	item_capabilities_t GetCapabilities() const { return m_unCapabilities; }
 
 	virtual bool CanApplyTo( const IEconItemInterface *pTool, const IEconItemInterface *pToolSubject ) const { Assert( pTool ); Assert( pToolSubject ); return true; }
-	virtual bool ShouldDisplayQuantity( const IEconItemInterface *pTool ) const;
+	virtual bool ShouldDisplayQuantity( const IEconItemInterface *pTool ) const { return false; } // lwss - add stub TODO: expand on this
 	virtual bool RequiresToolEscrowPeriod() const { return false; }
 
 	// We don't support throwing exceptions from tool construction so this is intended to be checked afterwards
@@ -1527,7 +1527,7 @@ public:
 
 #ifdef CLIENT_DLL
 	virtual bool ShouldShowContainedItemPanel( const IEconItemInterface *pItem ) const { Assert( !"IEconTool::ShouldShowContainedItemPanel(): we don't expect this to be called on anything besides gifts!" ); return false; }
-	virtual const char *GetUseCommandLocalizationToken( const IEconItemInterface *pItem, const char* pszDefault="#ApplyOnItem" ) const;
+	virtual const char *GetUseCommandLocalizationToken( const IEconItemInterface *pItem, const char* pszDefault="#ApplyOnItem" ) const { return "GetUseCommandLocalizationToken unimplemented!"; } //lwss - add stub TODO: expand on this
 
 	// Client "do something" interface. At least one of these functions must be implemented or your tool
 	// won't do anything on the client. Some tools (ie., collections) will implement both because they

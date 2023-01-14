@@ -1,13 +1,12 @@
 "vpc_cache"
 {
 	"CacheVersion"		"1"
-	"win32"
+	"linux64"
 	{
-		"CRCFile"		"vstdlib.vcxproj.vpc_crc"
+		"CRCFile"		"vstdlib_linux64.mak.vpc_crc"
 		"OutputFiles"
 		{
-			"0"		"vstdlib.vcxproj"
-			"1"		"vstdlib.vcxproj.filters"
+			"0"		"vstdlib_linux64.mak"
 		}
 	}
 }

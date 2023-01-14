@@ -1,13 +1,12 @@
 "vpc_cache"
 {
 	"CacheVersion"		"1"
-	"win32"
+	"linux64"
 	{
-		"CRCFile"		"shaderapiempty.vcxproj.vpc_crc"
+		"CRCFile"		"shaderapiempty_linux64.mak.vpc_crc"
 		"OutputFiles"
 		{
-			"0"		"shaderapiempty.vcxproj"
-			"1"		"shaderapiempty.vcxproj.filters"
+			"0"		"shaderapiempty_linux64.mak"
 		}
 	}
 }

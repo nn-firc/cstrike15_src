@@ -1,13 +1,12 @@
 "vpc_cache"
 {
 	"CacheVersion"		"1"
-	"win32"
+	"linux64"
 	{
-		"CRCFile"		"dmserializers.vcxproj.vpc_crc"
+		"CRCFile"		"dmserializers_linux64.mak.vpc_crc"
 		"OutputFiles"
 		{
-			"0"		"dmserializers.vcxproj"
-			"1"		"dmserializers.vcxproj.filters"
+			"0"		"dmserializers_linux64.mak"
 		}
 	}
 }

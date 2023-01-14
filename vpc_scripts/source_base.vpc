@@ -15,8 +15,10 @@ $Conditional CSTRIKE_STAGING_BUILD	"0"
 $Conditional CSTRIKE_REL_BUILD		"1"
 
 // Telemetry is disabled in rel, unless you use /DRAD_TELEMETRY_ENABLED on the vpc command line.
-$Conditional RAD_TELEMETRY_DISABLED	"1"			[ $CSTRIKE_REL_BUILD && !$RAD_TELEMETRY_ENABLED ]
-
+// lwss
+$Conditional RAD_TELEMETRY_DISABLED	"1"			[ $CSTRIKE_REL_BUILD]
+// disable this botnet telemetry shit, it is not RAD
+//lwss end
 $Configuration "Debug"
 {
 	$Compiler
